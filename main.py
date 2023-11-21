@@ -45,12 +45,19 @@ def is_initial_loss_draw(result, win_amount):
     return len([h for _,h in result.items() if score_hand(h) > win_amount]) == len(result)
 
 
-def play_cards(result, curr_card, players, dealer, deck, stop_amount = 17):
+def play_cards(result, curr_card, players, dealer, deck, stop_amount = 17, win_amount = 21):
     # everybody picks cards till their score goes over 17
-    for p in players+[dealer]:
+    for p in players:
         while score_hand(result[p]) < stop_amount and curr_card < len(deck):
             result[p].append(deck[curr_card])
             curr_card = curr_card+1
+    # dealer goes last - draws till wins or busts
+    usable_vals = [score_hand(h) for _,h in result.items() if score_hand(h) <= win_amount]
+    max_val = max(usable_vals) if len(usable_vals) > 0 else -1
+    while score_hand(result[dealer]) < max_val and curr_card < len(deck):
+        result[dealer].append(deck[curr_card])
+        curr_card = curr_card+1
+    
     return result
 
 
